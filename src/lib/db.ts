@@ -1,6 +1,6 @@
-import { getFirestore, collection, doc, setDoc, addDoc, getDocs, query, orderBy, where, collectionGroup, updateDoc, increment, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, doc, setDoc, addDoc, getDocs, query, orderBy, where, collectionGroup, updateDoc, increment, getDoc, deleteDoc } from 'firebase/firestore';
 import { app } from './firebase';
-import type { Event } from '@/lib/types';
+import type { ApiKey, Event } from '@/lib/types';
 
 export const db = getFirestore(app);
 
@@ -114,4 +114,39 @@ export const updateTicketStatus = async (ticketId: string, status: 'pending' | '
       }
     }
   }
+};
+
+export const createApiKey = async (organizerId: string, name: string) => {
+  // Generate a random API key
+  const key = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  
+  const apiKeyData = {
+    organizerId,
+    key,
+    name,
+    createdAt: new Date(),
+  };
+
+  const apiKeysRef = collection(db, 'api_keys');
+  const docRef = await addDoc(apiKeysRef, apiKeyData);
+  return { id: docRef.id, ...apiKeyData };
+};
+
+export const getOrganizerApiKeys = async (organizerId: string) => {
+  const apiKeysRef = collection(db, 'api_keys');
+  const q = query(apiKeysRef, where("organizerId", "==", organizerId));
+  const snapshot = await getDocs(q);
+  
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: doc.data().createdAt.toDate()
+  })) as ApiKey[];
+};
+
+export const deleteApiKey = async (apiKeyId: string) => {
+  const apiKeyRef = doc(db, 'api_keys', apiKeyId);
+  await deleteDoc(apiKeyRef);
 }; 

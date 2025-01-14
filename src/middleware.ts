@@ -2,21 +2,19 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const authCookie = request.cookies.get('firebase-auth-token');
+  // Get the response
+  const response = NextResponse.next();
 
-  // If trying to access protected routes without auth
-  if (!authCookie && (request.nextUrl.pathname.startsWith('/profile') || request.nextUrl.pathname.startsWith('/create-event'))) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Add CORS headers for API routes
+  if (request.nextUrl.pathname.startsWith('/api/public')) {
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
   }
 
-  // If trying to access auth pages while logged in
-  if (authCookie && (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup'))) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
-  matcher: ['/profile/:path*', '/create-event/:path*', '/login', '/signup'],
+  matcher: ['/api/public/:path*'],
 }; 
