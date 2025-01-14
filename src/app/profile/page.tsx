@@ -4,9 +4,10 @@ import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
-import { Event, getUserEvents } from "@/lib/db";
+import { getUserEvents } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { EventCard } from "@/components/event-card";
+import type { Event } from "@/lib/types";
 
 export default function ProfilePage() {
   const { user } = useAuth();
