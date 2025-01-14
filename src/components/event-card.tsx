@@ -26,7 +26,7 @@ export function EventCard({ event }: EventCardProps) {
             {event.availableTickets} tickets available
           </p>
           <p className="text-sm font-medium text-green-600">
-            {event.price === 0 ? 'Free' : `$${event.price}`}
+            {event.price === 0 ? 'Free' : `$${event.price.toFixed(2)}`}
           </p>
         </div>
       </CardContent>

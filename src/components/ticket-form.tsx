@@ -10,9 +10,10 @@ import type { Event } from "@/lib/types";
 
 interface TicketFormProps {
   event: Event;
+  onClose?: () => void;
 }
 
-export function TicketForm({ event }: TicketFormProps) {
+export function TicketForm({ event, onClose }: TicketFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -26,17 +27,47 @@ export function TicketForm({ event }: TicketFormProps) {
     setLoading(true);
 
     try {
-      await createTicket({
+      // First create a pending ticket
+      const ticketRef = await createTicket({
         eventId: event.id,
         name: formData.name,
         email: formData.email,
         userId: user?.uid,
+        status: 'pending',
       });
 
-      toast({
-        title: "Success!",
-        description: "Your ticket has been reserved. Check your email for details.",
-      });
+      if (event.price > 0) {
+        // If event is not free, create Stripe invoice
+        const response = await fetch('/api/payments/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: event.price,
+            email: formData.email,
+            name: formData.name,
+            eventId: event.id,
+            ticketId: ticketRef.id,
+          }),
+        });
+
+        const { url, error } = await response.json();
+        
+        if (error) {
+          throw new Error(error);
+        }
+
+        // Redirect to Stripe Checkout
+        window.location.href = url;
+      } else {
+        // For free tickets, show success message
+        toast({
+          title: "Success!",
+          description: "Your ticket has been reserved. Check your email for details.",
+        });
+        onClose?.();
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -74,7 +105,9 @@ export function TicketForm({ event }: TicketFormProps) {
         />
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Processing...' : 'Confirm Ticket'}
+        {loading ? 'Processing...' : event.price > 0 
+          ? `Pay $${event.price.toFixed(2)}` 
+          : 'Confirm Free Ticket'}
       </Button>
     </form>
   );

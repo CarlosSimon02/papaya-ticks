@@ -1,4 +1,4 @@
-import { getFirestore, collection, doc, setDoc, addDoc, getDocs, query, orderBy, where, collectionGroup, updateDoc, increment } from 'firebase/firestore';
+import { getFirestore, collection, doc, setDoc, addDoc, getDocs, query, orderBy, where, collectionGroup, updateDoc, increment, getDoc } from 'firebase/firestore';
 import { app } from './firebase';
 import type { Event } from '@/lib/types';
 
@@ -16,7 +16,7 @@ export const createEvent = async (userId: string, data: {
     ...data,
     createdAt: new Date(),
     createdBy: userId,
-    availableTickets: data.totalTickets, // Initially, available = total
+    availableTickets: data.totalTickets,
   };
 
   const userEventsRef = collection(db, 'users', userId, 'events');
@@ -61,7 +61,6 @@ export const getUserEvents = async (userId: string) => {
 };
 
 export const getEventById = async (eventId: string) => {
-  // We need to search through all users' events
   const eventsSnapshot = await getDocs(
     query(collectionGroup(db, 'events'))
   );
@@ -83,6 +82,7 @@ export const createTicket = async (data: {
   name: string;
   email: string;
   userId?: string;
+    status: 'pending' | 'confirmed' | 'cancelled';
 }) => {
   const ticketData = {
     ...data,
@@ -90,12 +90,9 @@ export const createTicket = async (data: {
     status: 'confirmed',
   };
 
-  // Create the ticket
   const ticketsRef = collection(db, 'tickets');
   const ticketRef = await addDoc(ticketsRef, ticketData);
 
-  // Update event's available tickets
-  // This should be done in a transaction in production
   const event = await getEventById(data.eventId);
   if (event) {
     const eventRef = doc(db, `users/${event.createdBy}/events/${data.eventId}`);
@@ -104,10 +101,25 @@ export const createTicket = async (data: {
     });
   }
 
-  // In a real application, you would:
-  // 1. Send confirmation email
-  // 2. Generate and store ticket QR code
-  // 3. Handle payment if not free
-  
   return ticketRef;
+};
+
+export const updateTicketStatus = async (ticketId: string, status: 'pending' | 'confirmed' | 'cancelled') => {
+  const ticketRef = doc(db, 'tickets', ticketId);
+  await updateDoc(ticketRef, { status });
+
+  if (status === 'confirmed') {
+    const ticketSnap = await getDoc(ticketRef);
+    const ticketData = ticketSnap.data();
+    
+    if (ticketData) {
+      const event = await getEventById(ticketData.eventId);
+      if (event) {
+        const eventRef = doc(db, `users/${event.createdBy}/events/${ticketData.eventId}`);
+        await updateDoc(eventRef, {
+          availableTickets: increment(-1)
+        });
+      }
+    }
+  }
 }; 

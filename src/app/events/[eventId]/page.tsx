@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
-import { getEventById, Event } from "@/lib/db";
+import { getEventById} from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TicketForm } from "@/components/ticket-form";
+import { Event } from "@/lib/types";
 
 export default function EventPage() {
   const params = useParams();

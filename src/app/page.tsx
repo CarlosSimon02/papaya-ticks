@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
-import { Event, getAllEvents } from "@/lib/db";
+import { getAllEvents } from "@/lib/db";
 import { EventCard } from "@/components/event-card";
+import { Event } from "@/lib/types";
 
 export default function Home() {
   const [events, setEvents] = useState<Event[]>([]);
