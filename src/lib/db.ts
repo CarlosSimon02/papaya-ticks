@@ -93,14 +93,6 @@ export const createTicket = async (data: {
   const ticketsRef = collection(db, 'tickets');
   const ticketRef = await addDoc(ticketsRef, ticketData);
 
-  const event = await getEventById(data.eventId);
-  if (event) {
-    const eventRef = doc(db, `users/${event.createdBy}/events/${data.eventId}`);
-    await updateDoc(eventRef, {
-      availableTickets: increment(-1)
-    });
-  }
-
   return ticketRef;
 };
 
