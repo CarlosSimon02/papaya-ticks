@@ -1,10 +1,15 @@
-'use client';
+"use client";
 
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
-import { getUserEvents, createApiKey, getOrganizerApiKeys, deleteApiKey } from "@/lib/db";
+import {
+  getUserEvents,
+  createApiKey,
+  getOrganizerApiKeys,
+  deleteApiKey,
+} from "@/lib/db";
 import { useEffect, useState } from "react";
 import { EventCard } from "@/components/event-card";
 import type { ApiKey, Event } from "@/lib/types";
@@ -29,7 +34,7 @@ export default function ProfilePage() {
       const loadData = async () => {
         const [userEvents, userApiKeys] = await Promise.all([
           getUserEvents(user.uid),
-          getOrganizerApiKeys(user.uid)
+          getOrganizerApiKeys(user.uid),
         ]);
         setEvents(userEvents);
         setApiKeys(userApiKeys);
@@ -49,7 +54,8 @@ export default function ProfilePage() {
       setNewKeyName("");
       toast({
         title: "API Key Created",
-        description: "Make sure to copy your API key now. You won't be able to see it again!",
+        description:
+          "Make sure to copy your API key now. You won't be able to see it again!",
       });
     } catch (error) {
       toast({
@@ -63,13 +69,17 @@ export default function ProfilePage() {
   };
 
   const handleDeleteApiKey = async (keyId: string) => {
-    if (!confirm("Are you sure you want to delete this API key? This action cannot be undone.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this API key? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
     try {
       await deleteApiKey(keyId);
-      setApiKeys(apiKeys.filter(key => key.id !== keyId));
+      setApiKeys(apiKeys.filter((key) => key.id !== keyId));
       toast({
         title: "API Key Deleted",
         description: "The API key has been successfully deleted",
@@ -89,7 +99,7 @@ export default function ProfilePage() {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">My Profile</h1>
-          <Button onClick={() => router.push('/create-event')}>
+          <Button onClick={() => router.push("/create-event")}>
             Create Event
           </Button>
         </div>
@@ -136,7 +146,9 @@ export default function ProfilePage() {
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium">Your API Keys</h3>
                     {apiKeys.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No API keys yet</p>
+                      <p className="text-sm text-muted-foreground">
+                        No API keys yet
+                      </p>
                     ) : (
                       <div className="space-y-2">
                         {apiKeys.map((apiKey) => (
@@ -178,7 +190,8 @@ export default function ProfilePage() {
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Authentication</h3>
                     <p className="text-sm text-muted-foreground">
-                      All API requests require an API key to be sent in the header:
+                      All API requests require an API key to be sent in the
+                      header:
                     </p>
                     <pre className="bg-muted p-4 rounded-lg text-sm">
                       <code>X-API-Key: your_api_key_here</code>
@@ -187,14 +200,15 @@ export default function ProfilePage() {
 
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Endpoints</h3>
-                    
+
                     <div className="space-y-2">
                       <h4 className="font-medium">1. Get Event Details</h4>
                       <pre className="bg-muted p-4 rounded-lg text-sm">
-                        <code>GET /api/public/events/{'{eventId}'}</code>
+                        <code>GET /api/public/events/{"{eventId}"}</code>
                       </pre>
                       <p className="text-sm text-muted-foreground">
-                        Returns event details including ticket types and availability.
+                        Returns event details including ticket types and
+                        availability.
                       </p>
                     </div>
 
@@ -202,23 +216,30 @@ export default function ProfilePage() {
                       <h4 className="font-medium">2. Create Ticket Purchase</h4>
                       <pre className="bg-muted p-4 rounded-lg text-sm">
                         <code>
-                          POST /api/public/tickets{'\n'}
-                          {'\n'}
-                          {JSON.stringify({
-                            eventId: "event_id",
-                            quantity: 1,
-                            customerEmail: "customer@example.com"
-                          }, null, 2)}
+                          POST /api/public/tickets{"\n"}
+                          {"\n"}
+                          {JSON.stringify(
+                            {
+                              eventId: "event_id",
+                              quantity: 1,
+                              customerEmail: "customer@example.com",
+                            },
+                            null,
+                            2
+                          )}
                         </code>
                       </pre>
                       <p className="text-sm text-muted-foreground">
-                        Creates a ticket purchase and returns a Stripe checkout URL.
+                        Creates a ticket purchase and returns a Stripe checkout
+                        URL.
                       </p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Example Integration</h3>
+                    <h3 className="text-lg font-semibold">
+                      Example Integration
+                    </h3>
                     <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
                       <code>
                         {`// Get event details
@@ -262,4 +283,4 @@ window.location.href = checkoutUrl; // Redirect to payment`}
       </main>
     </div>
   );
-} 
+}

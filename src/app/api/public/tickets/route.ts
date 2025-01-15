@@ -50,8 +50,8 @@ export async function POST(request: Request) {
   // Create Stripe checkout session
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: "payment",
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/tickets/${ticketRef.id}/success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/events/${eventId}`,
+    success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tickets/${ticketRef.id}/success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/events/${eventId}`,
     line_items: [
       {
         price_data: {
