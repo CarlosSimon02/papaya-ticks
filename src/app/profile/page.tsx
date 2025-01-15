@@ -244,7 +244,7 @@ export default function ProfilePage() {
                       <code>
                         {`// Get event details
 const response = await fetch(
-  'https://your-domain.com/api/public/events/EVENT_ID',
+  'https://papaya-ticks-dkgn.vercel.app/api/public/events/EVENT_ID',
   {
     headers: {
       'x-api-key': 'YOUR_API_KEY'
@@ -255,7 +255,7 @@ const { event } = await response.json();
 
 // Create ticket purchase
 const purchaseResponse = await fetch(
-  'https://your-domain.com/api/public/tickets',
+  'https://papaya-ticks-dkgn.vercel.app/api/public/tickets',
   {
     method: 'POST',
     headers: {
