@@ -264,7 +264,6 @@ const purchaseResponse = await fetch(
     },
     body: JSON.stringify({
       eventId: 'EVENT_ID',
-      ticketTypeId: 'TICKET_TYPE_ID',
       quantity: 1,
       customerEmail: 'customer@example.com'
     })
